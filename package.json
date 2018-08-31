@@ -1,0 +1,30 @@
+{
+  "name": "node-audio-ws",
+  "version": "0.2.2",
+  "author": "Sartaj",
+  "description": "Node.js implementation of Web audio API",
+  "repository": "mayu/node-audio-ws",
+  "keywords": [
+    "audio",
+    "audiojs",
+    "sound",
+    "music",
+    "web audio",
+    "web audio api",
+    "waa",
+    "dsp"
+  ],
+  "dependencies": {
+    "web-audio-api": "latest"
+  },
+  "analyze": false,
+  "devDependencies": {
+    "speaker": "latest",
+    "websocket-stream": "^5.1.2"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=4"
+  },
+  "scripts": {}
+}
