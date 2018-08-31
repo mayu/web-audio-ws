@@ -10,6 +10,8 @@ const server = http.createServer(function (req, res) {
   res.end('not found\n')
 }).listen(5000)
 
+console.log('Server Listening on ws://localhost:5000')
+
 websocket.createServer({ server: server }, function (stream) {
   context.outStream = stream
 
