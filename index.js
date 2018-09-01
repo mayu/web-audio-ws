@@ -1,57 +1,59 @@
 const fs = require('fs')
-const {AudioContext} = require('web-audio-api')
-const context = new AudioContext
-const websocket = require('websocket-stream')
 const http = require('http')
-const speaker = require('speaker')
+const path = require('path')
+const websocket = require('websocket-stream')
+const util = require('audio-buffer-utils')
+const format = require('audio-format')
+const {AudioContext} = require('web-audio-api')
+const through = require('through2')
 
-const PORT = 9002
-const server = http.createServer(function (req, res) {
-  res.end('not found\n')
-}).listen(PORT)
+const PORT = 5000
+const isDebug = true
 
-console.log(`Server Listening on ws://localhost:${PORT}`)
+const Speaker = require('speaker')
 
-websocket.createServer({ server: server }, function (stream) {
-  context.outStream = stream
+function runSpeaker(context, callback) {
+  const speaker = new Speaker({
+    channels: context.format.numberOfChannels,
+    bitDepth: context.format.bitDepth,
+    sampleRate: context.sampleRate
+  })
+  context.outStream = speaker
+  callback(null, context)
+}
 
-  console.log('encoding format : ' 
-  + context.format.numberOfChannels + ' channels ; '
-  + context.format.bitDepth + ' bits ; '
-  + context.sampleRate + ' Hz'
-  )
+function runServer(context, callback) {
+  const server = http.createServer()
+  server.listen(PORT)
 
-  fs.readFile(__dirname + '/sounds/cello.wav',{ highWaterMark: 64 } ,function(err, buffer) {
-    if (err) throw err
-    context.decodeAudioData(buffer, function(audioBuffer) {
-      let bufferNode = context.createBufferSource()
-      bufferNode.connect(context.destination)
-      bufferNode.buffer = audioBuffer
-      bufferNode.loop = true
-      bufferNode.start(0)
+  console.log(`Server Listening on ws://localhost:${PORT}`)
+  
+  websocket.createServer({ server: server }, function (stream) {
+    context.outStream = stream
+
+    const midiStream = stream.pipe(through((buf, enc, next) => {
+      next()
+    })) 
+   
+    callback(err, context, midiStream)
+
+    stream.on('error', () => {
+      console.log("connection closed")
     })
-  })
 
-  fs.readFile(__dirname + '/sounds/drumLoop.wav',{ highWaterMark: 64 } ,function(err, buffer) {
-    if (err) throw err
-      context.decodeAudioData(buffer, function(audioBuffer) {
-        let bufferNode = context.createBufferSource()
-        bufferNode.connect(context.destination)
-        bufferNode.buffer = audioBuffer
-        bufferNode.loop = true
-        bufferNode.start(0)
-      })
+    console.log('encoding format : ' 
+    + context.format.numberOfChannels + ' channels ; '
+    + context.format.bitDepth + ' bits ; '
+    + context.sampleRate + ' Hz'
+    )
   })
+}
 
-  fs.readFile(__dirname + '/sounds/cello.wav',{ highWaterMark: 64 } ,function(err, buffer) {
-    if (err) throw err
-      context.decodeAudioData(buffer, function(audioBuffer) {
-        let bufferNode = context.createBufferSource()
-        bufferNode.connect(context.destination)
-        bufferNode.buffer = audioBuffer
-        bufferNode.loop = true
-        bufferNode.start(0)
-      })
-  })
+function createAudioContext(callback) {
+  let err = null;
+  const context = new AudioContext
+  if(isDebug) runSpeaker(context, callback)
+  else runServer(context, callback)
+}
 
-})
+module.exports = createAudioContext
