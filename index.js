@@ -21,7 +21,7 @@ websocket.createServer({ server: server }, function (stream) {
   + context.sampleRate + ' Hz'
   )
 
-  fs.readFile(__dirname + '/sounds/powerpad-mono.wav',{ highWaterMark: 512 } ,function(err, buffer) {
+  fs.readFile(__dirname + '/sounds/cello.wav',{ highWaterMark: 64 } ,function(err, buffer) {
     if (err) throw err
     context.decodeAudioData(buffer, function(audioBuffer) {
       let bufferNode = context.createBufferSource()
@@ -30,6 +30,28 @@ websocket.createServer({ server: server }, function (stream) {
       bufferNode.loop = true
       bufferNode.start(0)
     })
+  })
+
+  fs.readFile(__dirname + '/sounds/drumLoop.wav',{ highWaterMark: 64 } ,function(err, buffer) {
+    if (err) throw err
+      context.decodeAudioData(buffer, function(audioBuffer) {
+        let bufferNode = context.createBufferSource()
+        bufferNode.connect(context.destination)
+        bufferNode.buffer = audioBuffer
+        bufferNode.loop = true
+        bufferNode.start(0)
+      })
+  })
+
+  fs.readFile(__dirname + '/sounds/cello.wav',{ highWaterMark: 64 } ,function(err, buffer) {
+    if (err) throw err
+      context.decodeAudioData(buffer, function(audioBuffer) {
+        let bufferNode = context.createBufferSource()
+        bufferNode.connect(context.destination)
+        bufferNode.buffer = audioBuffer
+        bufferNode.loop = true
+        bufferNode.start(0)
+      })
   })
 
 })
