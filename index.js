@@ -1,16 +1,16 @@
 const fs = require('fs')
 const {AudioContext} = require('web-audio-api')
 const context = new AudioContext
-const Speaker = require('speaker')
 const websocket = require('websocket-stream')
 const http = require('http')
+const speaker = require('speaker')
 
-
+const PORT = 9002
 const server = http.createServer(function (req, res) {
   res.end('not found\n')
-}).listen(5000)
+}).listen(PORT)
 
-console.log('Server Listening on ws://localhost:5000')
+console.log(`Server Listening on ws://localhost:${PORT}`)
 
 websocket.createServer({ server: server }, function (stream) {
   context.outStream = stream
@@ -21,7 +21,7 @@ websocket.createServer({ server: server }, function (stream) {
   + context.sampleRate + ' Hz'
   )
 
-  fs.readFile(__dirname + '/sounds/powerpad.wav', function(err, buffer) {
+  fs.readFile(__dirname + '/sounds/powerpad-mono.wav',{ highWaterMark: 512 } ,function(err, buffer) {
     if (err) throw err
     context.decodeAudioData(buffer, function(audioBuffer) {
       let bufferNode = context.createBufferSource()

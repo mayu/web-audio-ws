@@ -19,8 +19,8 @@
   },
   "analyze": false,
   "devDependencies": {
-    "speaker": "latest",
-    "websocket-stream": "^5.1.2"
+    "speaker": "^0.4.1",
+    "websocket-stream": "5.1.2"
   },
   "license": "MIT",
   "engines": {
