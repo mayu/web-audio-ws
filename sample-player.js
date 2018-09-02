@@ -4,6 +4,7 @@ const createBuffer = require('audio-buffer-from')
 const createAudioContext = require('./')
 const through = require('through2')
 const path = require('path')
+const player = require('./sample-player-lib')
 
 const loopFile = (path, context) => {
   fs.readFile(path, function(err, buffer) {
@@ -41,34 +42,21 @@ const map = {
   '81': fs.readFileSync(path.join(__dirname + '/sounds/powerpad-mono.wav'))
 }
 
+const maps = context => ({
+  'kick': createBuffer(fs.readFileSync(path.join(__dirname + '/sounds/drumLoop.wav'), {context})),
+  'snare': createBuffer(fs.readFileSync(path.join(__dirname + '/sounds/cello.wav'), {context})),
+  'hihat': createBuffer(fs.readFileSync(path.join(__dirname + '/sounds/powerpad-mono.wav'), {context}))
+})
+
 /**
  * Midi Message Type
  */
 createAudioContext((err, context, midi) => {
   // const buffers = createSampleBuffers(context, map)
-
-  // setInterval(() => {
-  //   context.decodeAudioData(map[80], function(audioBuffer) {
-  //     const bufferNode = context.createBufferSource()
-  //     bufferNode.connect(context.destination)
-  //     bufferNode.buffer = audioBuffer
-  //     bufferNode.start(0)
-  //   })
-  // }, 1000)
-
+  const samples = player(context, maps(context))
   midi.pipe(through((buf, enc, next) => {
     const midiBuffer = new Uint8Array(buf)
-    context.decodeAudioData(map[80], function(audioBuffer) {
-      console.log("DECODED")
-      let bufferNode = context.createBufferSource()
-      bufferNode.connect(context.destination)
-      bufferNode.buffer = audioBuffer
-      bufferNode.loop = false
-      bufferNode.start(0)
-    })
-    // const sample = buffers[midiBuffer[1]]
-    // console.log(sample)
-    // sample.node.start(0)
+    samples.start('snare')
     next()
   }))
 })
