@@ -1,43 +1,41 @@
-const fs = require('fs')
 const http = require('http')
-const path = require('path')
 const websocket = require('websocket-stream')
-const util = require('audio-buffer-utils')
-const format = require('audio-format')
+const debounce = require('debounce-stream')
+const map = require('through2-map')
 const {AudioContext} = require('web-audio-api')
-const through = require('through2')
-
-const PORT = 9002
-const isDebug = false
-
 const Speaker = require('speaker')
 
-function runSpeaker(context, callback) {
-  const speaker = new Speaker({
-    channels: context.format.numberOfChannels,
-    bitDepth: context.format.bitDepth,
-    sampleRate: context.sampleRate
-  })
-  context.outStream = speaker
-  callback(null, context)
+const opts = {
+  port: 9002,
+  debug: true
 }
 
-function runServer(context, callback) {
-  const server = http.createServer()
-  server.listen(PORT)
+function createAudioContext(callback) {
 
-  console.log(`Server Listening on ws://localhost:${PORT}`)
+  const context = new AudioContext
+
+  const server = http.createServer()
+  server.listen(opts.port)
+
+  console.log(`Server Listening on ws://localhost:${opts.port}`)
   
   websocket.createServer({ server: server }, function (stream) {
-    context.outStream = stream
 
-    // const midiStream = stream.pipe(through((buf, enc, next) => {
-    //   const midiBuffer = new Uint8Array(buf)
-    //   console.log("MMM", midiBuffer)
-    //   next()
-    // }))
-   
-    callback(null, context, stream)
+    if(opts.debug) {
+      context.outStream = new Speaker({
+        channels: context.format.numberOfChannels,
+        bitDepth: context.format.bitDepth,
+        sampleRate: context.sampleRate
+      })  
+    } else {
+      context.outStream = stream
+    }
+
+    const midiMessagesStream = stream
+      .pipe(debounce(10))
+      .pipe(map(buf => new Uint8Array(buf)))
+    
+    callback(null, context, midiMessagesStream)
 
     stream.on('error', () => {
       console.log("connection closed")
@@ -49,13 +47,6 @@ function runServer(context, callback) {
     + context.sampleRate + ' Hz'
     )
   })
-}
-
-function createAudioContext(callback) {
-  let err = null;
-  const context = new AudioContext
-  if(isDebug) runSpeaker(context, callback)
-  else runServer(context, callback)
 }
 
 module.exports = createAudioContext

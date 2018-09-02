@@ -15,25 +15,14 @@
     "dsp"
   ],
   "dependencies": {
-    "adsr": "^1.0.1",
-    "audio-buffer-stream": "^1.1.0",
-    "audio-buffer-utils": "^5.1.1",
-    "audio-format": "^2.3.2",
-    "audio-oscillator": "^2.3.0",
     "debounce-stream": "^2.0.0",
-    "ecstatic": "^3.2.2",
-    "midimessage": "^1.0.5",
-    "note-parser": "^2.0.1",
-    "through2": "^2.0.3",
-    "web-audio-api": "latest",
-    "web-audio-stream": "^3.0.1"
+    "through2-map": "^3.0.0",
+    "to2": "^1.0.0",
+    "web-audio-api": "^0.2.2",
+    "speaker": "^0.4.1"
   },
   "analyze": false,
   "devDependencies": {
-    "speaker": "^0.4.1",
-    "to2": "^1.0.0",
-    "websocket-stream": "5.1.2",
-    "yo-yo": "^1.4.1"
   },
   "license": "MIT",
   "engines": {
