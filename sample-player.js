@@ -19,30 +19,37 @@ const loopFile = (path, context) => {
   })
 }
 
-const createSampleBuffers = (context) => ({
-  '79': createBuffer(fs.readFileSync(path.join(__dirname + '/sounds/drumLoop.wav')), { context }),
-  '80': createBuffer(fs.readFileSync(path.join(__dirname + '/sounds/cello.wav')), { context }),
-  '81': createBuffer(fs.readFileSync(path.join(__dirname + '/sounds/powerpad-mono.wav')), { context })
-})
-const triggerSamples = context => (note, velocity) => {
-  context.decodeAudioData(map[note], function(audioBuffer) {
-    let bufferNode = context.createBufferSource()
-    bufferNode.connect(context.destination)
-    bufferNode.buffer = audioBuffer
-    console.log(bufferNode)
-    bufferNode.start(0)
-  })
+const createSampleBuffers = (context, map) => {
+  let buffers = {} 
+ 
+  for(let i in map) {
+    context.decodeAudioData(map[i], function(audioBuffer) {
+      let bufferNode = context.createBufferSource()
+      bufferNode.connect(context.destination)
+      bufferNode.buffer = audioBuffer
+      buffers[i] = {}
+      buffers[i].node = bufferNode
+      // bufferNode.start(0)
+    })
+  }
+
+  return buffers
+}
+
+const map = {
+  '79': fs.readFileSync(path.join(__dirname + '/sounds/drumLoop.wav')),
+  '80': fs.readFileSync(path.join(__dirname + '/sounds/cello.wav')),
+  '81': fs.readFileSync(path.join(__dirname + '/sounds/powerpad-mono.wav'))
 }
 
 /**
  * Midi Message Type
- * type NoteOnOff = 0 | 1
- * type MIDI_MESSAGE_BUFFER = [NoteOnOff]
  */
 createAudioContext((err, context, midi) => {
-  const buffers = createSampleBuffers(context)
+  const buffers = createSampleBuffers(context, map)
   midi.pipe(through((buf, enc, next) => {
     const midiBuffer = new Uint8Array(buf)
+    buffers[midiBuffer[1]].node.start(0)
     next()
   }))
 })
