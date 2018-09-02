@@ -14,13 +14,11 @@ const soundBank = {
 createAudioContext((err, context, midiStream) => {
   if(err) throw new Error('error creating web instrument server')
   const play = createSamplePlayer(context, soundBank)
-  play(79)
-  setTimeout(() => {
-    play(79)
-  },3000)
+
   midiStream
     .pipe(to((midi, enc, next) => {
-      play(79)
+      const note = midi[1]
+      play(note)
       next()
     }))
 
