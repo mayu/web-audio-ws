@@ -4,7 +4,7 @@ const createBuffer = require('audio-buffer-from')
 const createAudioContext = require('./')
 const through = require('through2')
 const path = require('path')
-const player = require('./sample-player-lib')
+const debounce = require('debounce-stream')
 
 const loopFile = (path, context) => {
   fs.readFile(path, function(err, buffer) {
@@ -62,7 +62,9 @@ const playSample = context => node => {
  */
 createAudioContext((err, context, midi) => {
   const play = playSample(context)
-  midi.pipe(through((buf, enc, next) => {
+  midi
+  .pipe(debounce(60))
+  .pipe(through((buf, enc, next) => {
     const midiBuffer = new Uint8Array(buf)
     play(midiBuffer[1])
     next()
