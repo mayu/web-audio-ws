@@ -1,5 +1,4 @@
 const fs = require('fs')
-const player = require('sample-player')
 const createBuffer = require('audio-buffer-from')
 
 const createAudioContext = require('./')
@@ -46,23 +45,24 @@ const map = {
  * Midi Message Type
  */
 createAudioContext((err, context, midi) => {
-  const buffers = createSampleBuffers(context, map)
+  // const buffers = createSampleBuffers(context, map)
 
-  setInterval((context, map) => () => {
-    context.decodeAudioData(map['79'], function(audioBuffer) {
-      let bufferNode = context.createBufferSource()
-      bufferNode.connect(context.destination)
-      bufferNode.buffer = audioBuffer
-      bufferNode.start(0)
-    })(context, map)
-  },3000)
+  // setInterval(() => {
+  //   context.decodeAudioData(map[80], function(audioBuffer) {
+  //     const bufferNode = context.createBufferSource()
+  //     bufferNode.connect(context.destination)
+  //     bufferNode.buffer = audioBuffer
+  //     bufferNode.start(0)
+  //   })
+  // }, 1000)
 
   midi.pipe(through((buf, enc, next) => {
     const midiBuffer = new Uint8Array(buf)
-    context.decodeAudioData(map[midiBuffer[1]], function(audioBuffer) {
+    context.decodeAudioData(map[80], function(audioBuffer) {
       let bufferNode = context.createBufferSource()
       bufferNode.connect(context.destination)
       bufferNode.buffer = audioBuffer
+      bufferNode.loop = false
       bufferNode.start(0)
     })
     // const sample = buffers[midiBuffer[1]]

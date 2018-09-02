@@ -8,7 +8,7 @@ const {AudioContext} = require('web-audio-api')
 const through = require('through2')
 
 const PORT = 5000
-const isDebug = false
+const isDebug = true
 
 const Speaker = require('speaker')
 
