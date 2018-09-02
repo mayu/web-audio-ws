@@ -47,9 +47,27 @@ const map = {
  */
 createAudioContext((err, context, midi) => {
   const buffers = createSampleBuffers(context, map)
+
+  setInterval((context, map) => () => {
+    context.decodeAudioData(map['79'], function(audioBuffer) {
+      let bufferNode = context.createBufferSource()
+      bufferNode.connect(context.destination)
+      bufferNode.buffer = audioBuffer
+      bufferNode.start(0)
+    })(context, map)
+  },3000)
+
   midi.pipe(through((buf, enc, next) => {
     const midiBuffer = new Uint8Array(buf)
-    buffers[midiBuffer[1]].node.start(0)
+    context.decodeAudioData(map[midiBuffer[1]], function(audioBuffer) {
+      let bufferNode = context.createBufferSource()
+      bufferNode.connect(context.destination)
+      bufferNode.buffer = audioBuffer
+      bufferNode.start(0)
+    })
+    // const sample = buffers[midiBuffer[1]]
+    // console.log(sample)
+    // sample.node.start(0)
     next()
   }))
 })
