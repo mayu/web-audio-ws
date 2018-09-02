@@ -59,6 +59,7 @@ createAudioContext((err, context, midi) => {
   midi.pipe(through((buf, enc, next) => {
     const midiBuffer = new Uint8Array(buf)
     context.decodeAudioData(map[80], function(audioBuffer) {
+      console.log("DECODED")
       let bufferNode = context.createBufferSource()
       bufferNode.connect(context.destination)
       bufferNode.buffer = audioBuffer
