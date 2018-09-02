@@ -54,43 +54,17 @@ const playSample = context => node => {
     let bufferNode = context.createBufferSource()
     bufferNode.connect(context.destination)
     bufferNode.buffer = audioBuffer
-    bufferNode.start(context.currentTime + 12)
+    bufferNode.start(context.currentTime + 1)
   })
 }
 /**
  * Midi Message Type
  */
 createAudioContext((err, context, midi) => {
-  // const buffers = createSampleBuffers(context, map)
-    // context.decodeAudioData(map[79], function(audioBuffer) {
-    //   let bufferNode = context.createBufferSource()
-    //   bufferNode.connect(context.destination)
-    //   bufferNode.buffer = audioBuffer
-    //   bufferNode.stop(context.currentTime)
-    //   bufferNode.start(context.currentTime + 1)
-    // })
-    // context.decodeAudioData(map[79], function(audioBuffer) {
-    //   let bufferNode = context.createBufferSource()
-    //   bufferNode.connect(context.destination)
-    //   bufferNode.buffer = audioBuffer
-    //   bufferNode.stop(context.currentTime)
-    //   bufferNode.start(context.currentTime + 3)
-    // })
-    // context.decodeAudioData(map[80], function(audioBuffer) {
-    //   let bufferNode = context.createBufferSource()
-    //   bufferNode.connect(context.destination)
-    //   bufferNode.buffer = audioBuffer
-    //   bufferNode.stop(context.currentTime)
-    //   bufferNode.start(context.currentTime + 1, 0)
-    // })
-
   const play = playSample(context)
-  // const samples = player(context, maps(context))
   midi.pipe(through((buf, enc, next) => {
     const midiBuffer = new Uint8Array(buf)
-
-    play(81)
-
+    play(midiBuffer[1])
     next()
   }))
 })
