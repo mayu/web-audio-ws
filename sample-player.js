@@ -1,6 +1,9 @@
 const fs = require('fs')
+const player = require('sample-player')
+const createBuffer = require('audio-buffer-from')
+
 const createAudioContext = require('./')
-const to = require('to2')
+const through = require('through2')
 const path = require('path')
 
 const loopFile = (path, context) => {
@@ -16,17 +19,17 @@ const loopFile = (path, context) => {
   })
 }
 
-const map = {
-  37: fs.readFileSync(path.join(__dirname + '/sounds/drumLoop.wav')),
-  38: fs.readFileSync(path.join(__dirname + '/sounds/cello.wav')),
-  39: fs.readFileSync(path.join(__dirname + '/sounds/powerpad-mono.wav'))
-}
-
+const createSampleBuffers = (context) => ({
+  '79': createBuffer(fs.readFileSync(path.join(__dirname + '/sounds/drumLoop.wav')), { context }),
+  '80': createBuffer(fs.readFileSync(path.join(__dirname + '/sounds/cello.wav')), { context }),
+  '81': createBuffer(fs.readFileSync(path.join(__dirname + '/sounds/powerpad-mono.wav')), { context })
+})
 const triggerSamples = context => (note, velocity) => {
   context.decodeAudioData(map[note], function(audioBuffer) {
     let bufferNode = context.createBufferSource()
     bufferNode.connect(context.destination)
     bufferNode.buffer = audioBuffer
+    console.log(bufferNode)
     bufferNode.start(0)
   })
 }
@@ -37,8 +40,9 @@ const triggerSamples = context => (note, velocity) => {
  * type MIDI_MESSAGE_BUFFER = [NoteOnOff]
  */
 createAudioContext((err, context, midi) => {
-  const trigger = triggerSamples(context)
-  midi.pipe(to(buf, enc, next) => {
-    trigger(37, 120)
-  })
+  const buffers = createSampleBuffers(context)
+  midi.pipe(through((buf, enc, next) => {
+    const midiBuffer = new Uint8Array(buf)
+    next()
+  }))
 })

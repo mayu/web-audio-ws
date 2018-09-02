@@ -8,7 +8,7 @@ const {AudioContext} = require('web-audio-api')
 const through = require('through2')
 
 const PORT = 5000
-const isDebug = true
+const isDebug = false
 
 const Speaker = require('speaker')
 
@@ -31,11 +31,13 @@ function runServer(context, callback) {
   websocket.createServer({ server: server }, function (stream) {
     context.outStream = stream
 
-    const midiStream = stream.pipe(through((buf, enc, next) => {
-      next()
-    })) 
+    // const midiStream = stream.pipe(through((buf, enc, next) => {
+    //   const midiBuffer = new Uint8Array(buf)
+    //   console.log("MMM", midiBuffer)
+    //   next()
+    // }))
    
-    callback(err, context, midiStream)
+    callback(null, context, stream)
 
     stream.on('error', () => {
       console.log("connection closed")
