@@ -42,7 +42,8 @@ function SamplePlayer (ac, source, options) {
    * @namespace
    */
   var player = { context: ac, out: out, opts: opts }
-  player.buffer
+  // player.buffer = source
+  player.buffers = source
 
   /**
    * Start a sample buffer.

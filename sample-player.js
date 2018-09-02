@@ -48,15 +48,49 @@ const maps = context => ({
   'hihat': createBuffer(fs.readFileSync(path.join(__dirname + '/sounds/powerpad-mono.wav'), {context}))
 })
 
+const playSample = context => node => {
+  context.decodeAudioData(map[node], function(audioBuffer) {
+    console.log(node, context.currentTime)
+    let bufferNode = context.createBufferSource()
+    bufferNode.connect(context.destination)
+    bufferNode.buffer = audioBuffer
+    bufferNode.start(context.currentTime + 12)
+  })
+}
 /**
  * Midi Message Type
  */
 createAudioContext((err, context, midi) => {
   // const buffers = createSampleBuffers(context, map)
-  const samples = player(context, maps(context))
+    // context.decodeAudioData(map[79], function(audioBuffer) {
+    //   let bufferNode = context.createBufferSource()
+    //   bufferNode.connect(context.destination)
+    //   bufferNode.buffer = audioBuffer
+    //   bufferNode.stop(context.currentTime)
+    //   bufferNode.start(context.currentTime + 1)
+    // })
+    // context.decodeAudioData(map[79], function(audioBuffer) {
+    //   let bufferNode = context.createBufferSource()
+    //   bufferNode.connect(context.destination)
+    //   bufferNode.buffer = audioBuffer
+    //   bufferNode.stop(context.currentTime)
+    //   bufferNode.start(context.currentTime + 3)
+    // })
+    // context.decodeAudioData(map[80], function(audioBuffer) {
+    //   let bufferNode = context.createBufferSource()
+    //   bufferNode.connect(context.destination)
+    //   bufferNode.buffer = audioBuffer
+    //   bufferNode.stop(context.currentTime)
+    //   bufferNode.start(context.currentTime + 1, 0)
+    // })
+
+  const play = playSample(context)
+  // const samples = player(context, maps(context))
   midi.pipe(through((buf, enc, next) => {
     const midiBuffer = new Uint8Array(buf)
-    samples.start('snare')
+
+    play(81)
+
     next()
   }))
 })
